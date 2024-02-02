@@ -45,3 +45,9 @@ app.*.map.json
 /macos/
 /linux/
 /windows/
+
+# Hide API keys
+/lib/firebase_options.dart
+/ios/Runner/GoogleService-info.plist
+/ios/firebase_app_id_file.json
+/android/app/google-services.json
