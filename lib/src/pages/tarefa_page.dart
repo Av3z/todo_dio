@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:todo_dio/src/components/body_task_page.dart';
 import 'package:todo_dio/src/components/header_task_page.dart';
 import 'package:todo_dio/src/components/modal_register.dart';
@@ -17,6 +18,19 @@ class _TarefaPageState extends State<TarefaPage> {
   TextEditingController tarefaController = TextEditingController();
   FirebaseService firebaseService = FirebaseService();
   bool justCompleted = false;
+  String userId = "";
+
+  @override
+  void initState() {
+    super.initState();
+    loadUser();
+  }
+
+  loadUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    userId = prefs.getString('userId')!;
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +46,9 @@ class _TarefaPageState extends State<TarefaPage> {
               },
               onConfirm: () async {
                 var tarefa = TarefaModel(
-                    descricao: tarefaController.text, concluido: false);
+                    descricao: tarefaController.text,
+                    concluido: false,
+                    userId: userId);
                 await firebaseService.createTodo(tarefa);
 
                 // ignore: use_build_context_synchronously
@@ -64,8 +80,8 @@ class _TarefaPageState extends State<TarefaPage> {
           Expanded(
               child: StreamBuilder<QuerySnapshot>(
             stream: !justCompleted
-                ? firebaseService.getSnapshots()
-                : firebaseService.getJustCompleted(),
+                ? firebaseService.getSnapshots(userId)
+                : firebaseService.getJustCompleted(userId),
             builder: (context, snapshot) {
               return !snapshot.hasData
                   ? const CircularProgressIndicator()
